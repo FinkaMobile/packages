@@ -326,4 +326,122 @@ class ImagePickerIOS extends ImagePickerPlatform {
     );
     return path != null ? XFile(path) : null;
   }
+
+  // Override the AssetResult methods to return actual local identifiers
+
+  @override
+  Future<AssetResult?> getImageAsAssetFromPlatform({
+    required ImageSource source,
+    ImagePickerOptions options = const ImagePickerOptions(),
+  }) async {
+    final int? imageQuality = options.imageQuality;
+    if (imageQuality != null && (imageQuality < 0 || imageQuality > 100)) {
+      throw ArgumentError.value(
+          imageQuality, 'imageQuality', 'must be between 0 and 100');
+    }
+
+    final double? maxHeight = options.maxHeight;
+    final double? maxWidth = options.maxWidth;
+    if (maxWidth != null && maxWidth < 0) {
+      throw ArgumentError.value(maxWidth, 'maxWidth', 'cannot be negative');
+    }
+
+    if (maxHeight != null && maxHeight < 0) {
+      throw ArgumentError.value(maxHeight, 'maxHeight', 'cannot be negative');
+    }
+
+    final AssetPickResult? result = await _hostApi.pickImage(
+      SourceSpecification(
+        type: _convertSource(source),
+        camera: _convertCamera(options.preferredCameraDevice),
+      ),
+      MaxSize(width: maxWidth, height: maxHeight),
+      imageQuality,
+      options.requestFullMetadata,
+    );
+
+    if (result == null) return null;
+    return AssetResult(
+      file: XFile(result.path),
+      localIdentifier: result.localIdentifier,
+    );
+  }
+
+  @override
+  Future<List<AssetResult>> getMultiImageAsAssetsFromPlatform({
+    MultiImagePickerOptions options = const MultiImagePickerOptions(),
+  }) async {
+    final int? imageQuality = options.imageOptions.imageQuality;
+    if (imageQuality != null && (imageQuality < 0 || imageQuality > 100)) {
+      throw ArgumentError.value(
+          imageQuality, 'imageQuality', 'must be between 0 and 100');
+    }
+
+    final double? maxWidth = options.imageOptions.maxWidth;
+    if (maxWidth != null && maxWidth < 0) {
+      throw ArgumentError.value(maxWidth, 'maxWidth', 'cannot be negative');
+    }
+
+    final double? maxHeight = options.imageOptions.maxHeight;
+    if (maxHeight != null && maxHeight < 0) {
+      throw ArgumentError.value(maxHeight, 'maxHeight', 'cannot be negative');
+    }
+
+    final int? limit = options.limit;
+    if (limit != null && limit < 2) {
+      throw ArgumentError.value(limit, 'limit', 'cannot be lower than 2');
+    }
+
+    final List<AssetPickResult?> results = await _hostApi.pickMultiImage(
+      MaxSize(width: maxWidth, height: maxHeight),
+      imageQuality,
+      options.imageOptions.requestFullMetadata,
+      limit,
+    );
+
+    return results
+        .where((result) => result != null)
+        .map((result) => AssetResult(
+              file: XFile(result!.path),
+              localIdentifier: result.localIdentifier,
+            ))
+        .toList();
+  }
+
+  @override
+  Future<List<AssetResult>> getMediaAsAssetsFromPlatform({
+    required MediaOptions options,
+  }) async {
+    final MediaSelectionOptions mediaSelectionOptions =
+        _mediaOptionsToMediaSelectionOptions(options);
+
+    final List<AssetPickResult?> results = await _hostApi.pickMedia(mediaSelectionOptions);
+
+    return results
+        .where((result) => result != null)
+        .map((result) => AssetResult(
+              file: XFile(result!.path),
+              localIdentifier: result.localIdentifier,
+            ))
+        .toList();
+  }
+
+  @override
+  Future<AssetResult?> getVideoAsAssetFromPlatform({
+    required ImageSource source,
+    CameraDevice preferredCameraDevice = CameraDevice.rear,
+    Duration? maxDuration,
+  }) async {
+    final AssetPickResult? result = await _hostApi.pickVideo(
+        SourceSpecification(
+            type: _convertSource(source),
+            camera: _convertCamera(preferredCameraDevice)),
+        maxDuration?.inSeconds);
+
+    if (result == null) return null;
+    return AssetResult(
+      file: XFile(result.path),
+      localIdentifier: result.localIdentifier,
+    );
+  }
 }

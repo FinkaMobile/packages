@@ -348,8 +348,7 @@ abstract class ImagePickerPlatform extends PlatformInterface {
     required ImageSource source,
     ImagePickerOptions options = const ImagePickerOptions(),
   }) async {
-    final XFile? file = await getImageFromSource(source: source, options: options);
-    return file != null ? AssetResult(file: file) : null;
+    return getImageAsAssetFromPlatform(source: source, options: options);
   }
 
   /// Returns a [List<AssetResult>] with the images that were picked, including local identifiers.
@@ -366,8 +365,7 @@ abstract class ImagePickerPlatform extends PlatformInterface {
   Future<List<AssetResult>> getMultiImageAsAssets({
     MultiImagePickerOptions options = const MultiImagePickerOptions(),
   }) async {
-    final List<XFile> files = await getMultiImageWithOptions(options: options);
-    return files.map((XFile file) => AssetResult(file: file)).toList();
+    return getMultiImageAsAssetsFromPlatform(options: options);
   }
 
   /// Returns a [List<AssetResult>] with the images and/or videos that were picked, including local identifiers.
@@ -389,8 +387,7 @@ abstract class ImagePickerPlatform extends PlatformInterface {
   Future<List<AssetResult>> getMediaAsAssets({
     required MediaOptions options,
   }) async {
-    final List<XFile> files = await getMedia(options: options);
-    return files.map((XFile file) => AssetResult(file: file)).toList();
+    return getMediaAsAssetsFromPlatform(options: options);
   }
 
   /// Returns an [AssetResult] containing the video that was picked, including local identifier.
@@ -417,6 +414,54 @@ abstract class ImagePickerPlatform extends PlatformInterface {
     CameraDevice preferredCameraDevice = CameraDevice.rear,
     Duration? maxDuration,
   }) async {
+    return getVideoAsAssetFromPlatform(
+      source: source,
+      preferredCameraDevice: preferredCameraDevice,
+      maxDuration: maxDuration,
+    );
+  }
+
+  /// Platform-specific implementation methods that can be overridden to return actual local identifiers
+
+  /// Returns an [AssetResult] containing the image that was picked, including local identifier.
+  /// Platform implementations should override this to return actual local identifiers.
+  Future<AssetResult?> getImageAsAssetFromPlatform({
+    required ImageSource source,
+    ImagePickerOptions options = const ImagePickerOptions(),
+  }) async {
+    // Default implementation falls back to non-local-id version
+    final XFile? file = await getImageFromSource(source: source, options: options);
+    return file != null ? AssetResult(file: file) : null;
+  }
+
+  /// Returns a [List<AssetResult>] with the images that were picked, including local identifiers.
+  /// Platform implementations should override this to return actual local identifiers.
+  Future<List<AssetResult>> getMultiImageAsAssetsFromPlatform({
+    MultiImagePickerOptions options = const MultiImagePickerOptions(),
+  }) async {
+    // Default implementation falls back to non-local-id version
+    final List<XFile> files = await getMultiImageWithOptions(options: options);
+    return files.map((XFile file) => AssetResult(file: file)).toList();
+  }
+
+  /// Returns a [List<AssetResult>] with the images and/or videos that were picked, including local identifiers.
+  /// Platform implementations should override this to return actual local identifiers.
+  Future<List<AssetResult>> getMediaAsAssetsFromPlatform({
+    required MediaOptions options,
+  }) async {
+    // Default implementation falls back to non-local-id version
+    final List<XFile> files = await getMedia(options: options);
+    return files.map((XFile file) => AssetResult(file: file)).toList();
+  }
+
+  /// Returns an [AssetResult] containing the video that was picked, including local identifier.
+  /// Platform implementations should override this to return actual local identifiers.
+  Future<AssetResult?> getVideoAsAssetFromPlatform({
+    required ImageSource source,
+    CameraDevice preferredCameraDevice = CameraDevice.rear,
+    Duration? maxDuration,
+  }) async {
+    // Default implementation falls back to non-local-id version
     final XFile? file = await getVideo(
       source: source,
       preferredCameraDevice: preferredCameraDevice,

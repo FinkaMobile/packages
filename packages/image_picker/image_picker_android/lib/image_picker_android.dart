@@ -415,4 +415,77 @@ class ImagePickerAndroid extends ImagePickerPlatform {
     // ignore: dead_code
     return RetrieveType.image;
   }
+
+  // Override the AssetResult methods to return actual AssetPickResult data (Android returns null for local identifiers)
+
+  @override
+  Future<AssetResult?> getImageAsAssetFromPlatform({
+    required ImageSource source,
+    ImagePickerOptions options = const ImagePickerOptions(),
+  }) async {
+    final AssetPickResult? assetResult = await _getImagePath(
+      source: source,
+      maxWidth: options.maxWidth,
+      maxHeight: options.maxHeight,
+      imageQuality: options.imageQuality,
+    );
+    if (assetResult == null) return null;
+    return AssetResult(
+      file: XFile(assetResult.path),
+      localIdentifier: assetResult.localIdentifier, // Always null on Android
+    );
+  }
+
+  @override
+  Future<List<AssetResult>> getMultiImageAsAssetsFromPlatform({
+    MultiImagePickerOptions options = const MultiImagePickerOptions(),
+  }) async {
+    final List<AssetPickResult?> assetResults = await _getMultiImagePath(
+      maxWidth: options.imageOptions.maxWidth,
+      maxHeight: options.imageOptions.maxHeight,
+      imageQuality: options.imageOptions.imageQuality,
+      limit: options.limit,
+    );
+    return assetResults
+        .where((result) => result != null)
+        .map((result) => AssetResult(
+              file: XFile(result!.path),
+              localIdentifier: result.localIdentifier, // Always null on Android
+            ))
+        .toList();
+  }
+
+  @override
+  Future<List<AssetResult>> getMediaAsAssetsFromPlatform({
+    required MediaOptions options,
+  }) async {
+    final List<AssetPickResult?> assetResults = await _hostApi.pickMedia(
+      _mediaOptionsToMediaSelectionOptions(options),
+      _mediaOptionsToGeneralOptions(options),
+    );
+    return assetResults
+        .where((result) => result != null)
+        .map((result) => AssetResult(
+              file: XFile(result!.path),
+              localIdentifier: result.localIdentifier, // Always null on Android
+            ))
+        .toList();
+  }
+
+  @override
+  Future<AssetResult?> getVideoAsAssetFromPlatform({
+    required ImageSource source,
+    CameraDevice preferredCameraDevice = CameraDevice.rear,
+    Duration? maxDuration,
+  }) async {
+    final AssetPickResult? assetResult = await _getVideoPath(
+      source: source,
+      maxDuration: maxDuration,
+    );
+    if (assetResult == null) return null;
+    return AssetResult(
+      file: XFile(assetResult.path),
+      localIdentifier: assetResult.localIdentifier, // Always null on Android
+    );
+  }
 }
