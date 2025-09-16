@@ -329,7 +329,6 @@ class ImagePickerIOS extends ImagePickerPlatform {
 
   // Override the AssetResult methods to return actual local identifiers
 
-  @override
   Future<AssetResult?> getImageAsAssetFromPlatform({
     required ImageSource source,
     ImagePickerOptions options = const ImagePickerOptions(),
@@ -367,7 +366,6 @@ class ImagePickerIOS extends ImagePickerPlatform {
     );
   }
 
-  @override
   Future<List<AssetResult>> getMultiImageAsAssetsFromPlatform({
     MultiImagePickerOptions options = const MultiImagePickerOptions(),
   }) async {
@@ -408,7 +406,6 @@ class ImagePickerIOS extends ImagePickerPlatform {
         .toList();
   }
 
-  @override
   Future<List<AssetResult>> getMediaAsAssetsFromPlatform({
     required MediaOptions options,
   }) async {
@@ -426,7 +423,6 @@ class ImagePickerIOS extends ImagePickerPlatform {
         .toList();
   }
 
-  @override
   Future<AssetResult?> getVideoAsAssetFromPlatform({
     required ImageSource source,
     CameraDevice preferredCameraDevice = CameraDevice.rear,
