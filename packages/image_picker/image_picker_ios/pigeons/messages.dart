@@ -68,8 +68,8 @@ abstract class ImagePickerApi {
   List<AssetPickResult?> pickMultiImage(
       MaxSize maxSize, int? imageQuality, bool requestFullMetadata, int? limit);
   @async
-  @ObjCSelector('pickVideoWithSource:maxDuration:')
-  AssetPickResult? pickVideo(SourceSpecification source, int? maxDurationSeconds);
+  @ObjCSelector('pickVideoWithSource:maxDuration:fullMetadata:')
+  AssetPickResult? pickVideo(SourceSpecification source, int? maxDurationSeconds, bool requestFullMetadata);
 
   /// Selects images and videos and returns their paths and local identifiers.
   @async

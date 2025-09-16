@@ -260,12 +260,14 @@ class ImagePickerIOS extends ImagePickerPlatform {
     required ImageSource source,
     CameraDevice preferredCameraDevice = CameraDevice.rear,
     Duration? maxDuration,
+    bool requestFullMetadata = true,
   }) async {
     final AssetPickResult? result = await _hostApi.pickVideo(
         SourceSpecification(
             type: _convertSource(source),
             camera: _convertCamera(preferredCameraDevice)),
-        maxDuration?.inSeconds);
+        maxDuration?.inSeconds,
+        requestFullMetadata);
     return result?.path;
   }
 
@@ -432,7 +434,8 @@ class ImagePickerIOS extends ImagePickerPlatform {
         SourceSpecification(
             type: _convertSource(source),
             camera: _convertCamera(preferredCameraDevice)),
-        maxDuration?.inSeconds);
+        maxDuration?.inSeconds,
+        true); // Request full metadata for local identifiers
 
     if (result == null) return null;
     return AssetResult(

@@ -305,12 +305,13 @@ void SetUpFLTImagePickerApi(id<FlutterBinaryMessenger> binaryMessenger, NSObject
         binaryMessenger:binaryMessenger
         codec:FLTImagePickerApiGetCodec()];
     if (api) {
-      NSCAssert([api respondsToSelector:@selector(pickVideoWithSource:maxDuration:completion:)], @"FLTImagePickerApi api (%@) doesn't respond to @selector(pickVideoWithSource:maxDuration:completion:)", api);
+      NSCAssert([api respondsToSelector:@selector(pickVideoWithSource:maxDuration:fullMetadata:completion:)], @"FLTImagePickerApi api (%@) doesn't respond to @selector(pickVideoWithSource:maxDuration:fullMetadata:completion:)", api);
       [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
         NSArray *args = message;
         FLTSourceSpecification *arg_source = GetNullableObjectAtIndex(args, 0);
         NSNumber *arg_maxDurationSeconds = GetNullableObjectAtIndex(args, 1);
-        [api pickVideoWithSource:arg_source maxDuration:arg_maxDurationSeconds completion:^(FLTAssetPickResult *_Nullable output, FlutterError *_Nullable error) {
+        BOOL arg_requestFullMetadata = [GetNullableObjectAtIndex(args, 2) boolValue];
+        [api pickVideoWithSource:arg_source maxDuration:arg_maxDurationSeconds fullMetadata:arg_requestFullMetadata completion:^(FLTAssetPickResult *_Nullable output, FlutterError *_Nullable error) {
           callback(wrapResult(output, error));
         }];
       }];

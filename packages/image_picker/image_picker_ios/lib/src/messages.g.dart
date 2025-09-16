@@ -260,7 +260,7 @@ class ImagePickerApi {
     }
   }
 
-  Future<AssetPickResult?> pickVideo(SourceSpecification source, int? maxDurationSeconds) async {
+  Future<AssetPickResult?> pickVideo(SourceSpecification source, int? maxDurationSeconds, bool requestFullMetadata) async {
     const String __pigeon_channelName = 'dev.flutter.pigeon.image_picker_ios.ImagePickerApi.pickVideo';
     final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
       __pigeon_channelName,
@@ -268,7 +268,7 @@ class ImagePickerApi {
       binaryMessenger: __pigeon_binaryMessenger,
     );
     final List<Object?>? __pigeon_replyList =
-        await __pigeon_channel.send(<Object?>[source, maxDurationSeconds]) as List<Object?>?;
+        await __pigeon_channel.send(<Object?>[source, maxDurationSeconds, requestFullMetadata]) as List<Object?>?;
     if (__pigeon_replyList == null) {
       throw _createConnectionError(__pigeon_channelName);
     } else if (__pigeon_replyList.length > 1) {

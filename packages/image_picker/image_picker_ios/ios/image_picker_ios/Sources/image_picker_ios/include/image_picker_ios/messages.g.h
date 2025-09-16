@@ -87,7 +87,7 @@ NSObject<FlutterMessageCodec> *FLTImagePickerApiGetCodec(void);
 @protocol FLTImagePickerApi
 - (void)pickImageWithSource:(FLTSourceSpecification *)source maxSize:(FLTMaxSize *)maxSize quality:(nullable NSNumber *)imageQuality fullMetadata:(BOOL)requestFullMetadata completion:(void (^)(FLTAssetPickResult *_Nullable, FlutterError *_Nullable))completion;
 - (void)pickMultiImageWithMaxSize:(FLTMaxSize *)maxSize quality:(nullable NSNumber *)imageQuality fullMetadata:(BOOL)requestFullMetadata limit:(nullable NSNumber *)limit completion:(void (^)(NSArray<FLTAssetPickResult *> *_Nullable, FlutterError *_Nullable))completion;
-- (void)pickVideoWithSource:(FLTSourceSpecification *)source maxDuration:(nullable NSNumber *)maxDurationSeconds completion:(void (^)(FLTAssetPickResult *_Nullable, FlutterError *_Nullable))completion;
+- (void)pickVideoWithSource:(FLTSourceSpecification *)source maxDuration:(nullable NSNumber *)maxDurationSeconds fullMetadata:(BOOL)requestFullMetadata completion:(void (^)(FLTAssetPickResult *_Nullable, FlutterError *_Nullable))completion;
 /// Selects images and videos and returns their paths and local identifiers.
 - (void)pickMediaWithMediaSelectionOptions:(FLTMediaSelectionOptions *)mediaSelectionOptions completion:(void (^)(NSArray<FLTAssetPickResult *> *_Nullable, FlutterError *_Nullable))completion;
 @end

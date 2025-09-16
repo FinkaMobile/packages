@@ -64,7 +64,7 @@ abstract class TestHostImagePickerApi {
 
   Future<List<AssetPickResult?>> pickMultiImage(MaxSize maxSize, int? imageQuality, bool requestFullMetadata, int? limit);
 
-  Future<AssetPickResult?> pickVideo(SourceSpecification source, int? maxDurationSeconds);
+  Future<AssetPickResult?> pickVideo(SourceSpecification source, int? maxDurationSeconds, bool requestFullMetadata);
 
   /// Selects images and videos and returns their paths and local identifiers.
   Future<List<AssetPickResult?>> pickMedia(MediaSelectionOptions mediaSelectionOptions);
@@ -147,8 +147,11 @@ abstract class TestHostImagePickerApi {
           assert(arg_source != null,
               'Argument for dev.flutter.pigeon.image_picker_ios.ImagePickerApi.pickVideo was null, expected non-null SourceSpecification.');
           final int? arg_maxDurationSeconds = (args[1] as int?);
+          final bool? arg_requestFullMetadata = (args[2] as bool?);
+          assert(arg_requestFullMetadata != null,
+              'Argument for dev.flutter.pigeon.image_picker_ios.ImagePickerApi.pickVideo was null, expected non-null bool.');
           try {
-            final AssetPickResult? output = await api.pickVideo(arg_source!, arg_maxDurationSeconds);
+            final AssetPickResult? output = await api.pickVideo(arg_source!, arg_maxDurationSeconds, arg_requestFullMetadata!);
             return <Object?>[output];
           } on PlatformException catch (e) {
             return wrapResponse(error: e);
