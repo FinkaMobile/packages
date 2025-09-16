@@ -38,7 +38,7 @@ class _ApiLogger implements TestHostImagePickerApi {
   final List<_LoggedMethodCall> calls = <_LoggedMethodCall>[];
 
   @override
-  Future<String?> pickImage(
+  Future<AssetPickResult?> pickImage(
     SourceSpecification source,
     MaxSize maxSize,
     int? imageQuality,
@@ -53,11 +53,12 @@ class _ApiLogger implements TestHostImagePickerApi {
       'imageQuality': imageQuality,
       'requestFullMetadata': requestFullMetadata,
     }));
-    return returnValue as String?;
+    final String? path = returnValue as String?;
+    return path != null ? AssetPickResult(path: path, localIdentifier: null) : null;
   }
 
   @override
-  Future<List<String?>> pickMultiImage(
+  Future<List<AssetPickResult?>> pickMultiImage(
     MaxSize maxSize,
     int? imageQuality,
     bool requestFullMetadata,
@@ -70,11 +71,12 @@ class _ApiLogger implements TestHostImagePickerApi {
       'requestFullMetadata': requestFullMetadata,
       'limit': limit,
     }));
-    return returnValue as List<String?>;
+    final List<String?> paths = returnValue as List<String?>;
+    return paths.map((String? path) => path != null ? AssetPickResult(path: path, localIdentifier: null) : null).toList();
   }
 
   @override
-  Future<List<String?>> pickMedia(
+  Future<List<AssetPickResult?>> pickMedia(
       MediaSelectionOptions mediaSelectionOptions) async {
     calls.add(_LoggedMethodCall('pickMedia', arguments: <String, dynamic>{
       'maxWidth': mediaSelectionOptions.maxSize.width,
@@ -84,18 +86,20 @@ class _ApiLogger implements TestHostImagePickerApi {
       'allowMultiple': mediaSelectionOptions.allowMultiple,
       'limit': mediaSelectionOptions.limit,
     }));
-    return returnValue as List<String?>;
+    final List<String?> paths = returnValue as List<String?>;
+    return paths.map((String? path) => path != null ? AssetPickResult(path: path, localIdentifier: null) : null).toList();
   }
 
   @override
-  Future<String?> pickVideo(
+  Future<AssetPickResult?> pickVideo(
       SourceSpecification source, int? maxDurationSeconds) async {
     calls.add(_LoggedMethodCall('pickVideo', arguments: <String, dynamic>{
       'source': source.type,
       'cameraDevice': source.camera,
       'maxDuration': maxDurationSeconds,
     }));
-    return returnValue as String?;
+    final String? path = returnValue as String?;
+    return path != null ? AssetPickResult(path: path, localIdentifier: null) : null;
   }
 }
 

@@ -14,14 +14,24 @@ NS_ASSUME_NONNULL_BEGIN
 /// to return either a list or a single element depending on the original call.
 typedef void (^FlutterResultAdapter)(NSArray<NSString *> *_Nullable, FlutterError *_Nullable);
 
+/// The return handler for asset results, which internally adapts the provided result list
+/// to return either a list or a single asset result depending on the original call.
+typedef void (^FlutterAssetResultAdapter)(NSArray<FLTAssetPickResult *> *_Nullable, FlutterError *_Nullable);
+
 /// A container class for context to use when handling a method call from the Dart side.
 @interface FLTImagePickerMethodCallContext : NSObject
 
 /// Initializes a new context that calls |result| on completion of the operation.
 - (instancetype)initWithResult:(nonnull FlutterResultAdapter)result;
 
+/// Initializes a new context that calls |assetResult| on completion of the operation.
+- (instancetype)initWithAssetResult:(nonnull FlutterAssetResultAdapter)assetResult;
+
 /// The callback to provide results to the Dart caller.
-@property(nonatomic, copy, nonnull) FlutterResultAdapter result;
+@property(nonatomic, copy, nullable) FlutterResultAdapter result;
+
+/// The callback to provide asset results to the Dart caller.
+@property(nonatomic, copy, nullable) FlutterAssetResultAdapter assetResult;
 
 /// The maximum size to enforce on the results.
 ///
@@ -63,6 +73,12 @@ typedef void (^FlutterResultAdapter)(NSArray<NSString *> *_Nullable, FlutterErro
 ///
 /// @param pathList The paths to return. nil indicates a cancelled operation.
 - (void)sendCallResultWithSavedPathList:(nullable NSArray *)pathList;
+
+/// Validates the provided asset results list, then sends it via `callContext.assetResult` as the result of the
+/// original platform channel method call, clearing the in-progress call state.
+///
+/// @param assetList The asset results to return. nil indicates a cancelled operation.
+- (void)sendCallResultWithSavedAssetList:(nullable NSArray<FLTAssetPickResult *> *)assetList;
 
 /// Tells the delegate that the user cancelled the pick operation.
 ///

@@ -322,6 +322,109 @@ abstract class ImagePickerPlatform extends PlatformInterface {
     return pickedImages ?? <XFile>[];
   }
 
+  // MARK: - AssetResult methods
+
+  /// Returns an [AssetResult] with the image that was picked, including local identifier.
+  ///
+  /// The `source` argument controls where the image comes from. This can
+  /// be either [ImageSource.camera] or [ImageSource.gallery].
+  ///
+  /// The `options` argument controls additional settings that can be used when
+  /// picking an image. See [ImagePickerOptions] for more details.
+  ///
+  /// The returned [AssetResult] contains both the file and the local identifier
+  /// (iOS only, null on Android).
+  ///
+  /// Where iOS supports HEIC images, Android 8 and below doesn't. Android 9 and
+  /// above only support HEIC images if used in addition to a size modification,
+  /// of which the usage is explained in [ImagePickerOptions].
+  ///
+  /// In Android, the MainActivity can be destroyed for various reasons. If that
+  /// happens, the result will be lost in this call. You can then call [getLostData]
+  /// when your app relaunches to retrieve the lost data.
+  ///
+  /// If no images were picked, the return value is null.
+  Future<AssetResult?> getImageAsAsset({
+    required ImageSource source,
+    ImagePickerOptions options = const ImagePickerOptions(),
+  }) async {
+    final XFile? file = await getImageFromSource(source: source, options: options);
+    return file != null ? AssetResult(file: file) : null;
+  }
+
+  /// Returns a [List<AssetResult>] with the images that were picked, including local identifiers.
+  ///
+  /// The images come from the [ImageSource.gallery].
+  ///
+  /// The `options` argument controls additional settings that can be used when
+  /// picking an image. See [MultiImagePickerOptions] for more details.
+  ///
+  /// The returned [AssetResult] objects contain both the files and local identifiers
+  /// (iOS only, null on Android).
+  ///
+  /// If no images were picked, returns an empty list.
+  Future<List<AssetResult>> getMultiImageAsAssets({
+    MultiImagePickerOptions options = const MultiImagePickerOptions(),
+  }) async {
+    final List<XFile> files = await getMultiImageWithOptions(options: options);
+    return files.map((XFile file) => AssetResult(file: file)).toList();
+  }
+
+  /// Returns a [List<AssetResult>] with the images and/or videos that were picked, including local identifiers.
+  ///
+  /// The images and videos come from the gallery.
+  ///
+  /// Where iOS supports HEIC images, Android 8 and below doesn't. Android 9 and
+  /// above only support HEIC images if used in addition to a size modification,
+  /// of which the usage is explained in [MediaOptions].
+  ///
+  /// The returned [AssetResult] objects contain both the files and local identifiers
+  /// (iOS only, null on Android).
+  ///
+  /// In Android, the MainActivity can be destroyed for various reasons.
+  /// If that happens, the result will be lost in this call. You can then
+  /// call [getLostData] when your app relaunches to retrieve the lost data.
+  ///
+  /// If no images or videos were picked, the return value is an empty list.
+  Future<List<AssetResult>> getMediaAsAssets({
+    required MediaOptions options,
+  }) async {
+    final List<XFile> files = await getMedia(options: options);
+    return files.map((XFile file) => AssetResult(file: file)).toList();
+  }
+
+  /// Returns an [AssetResult] containing the video that was picked, including local identifier.
+  ///
+  /// The [source] argument controls where the video comes from. This can
+  /// be either [ImageSource.camera] or [ImageSource.gallery].
+  ///
+  /// The [maxDuration] argument specifies the maximum duration of the captured video. If no [maxDuration] is specified,
+  /// the maximum duration will be infinite.
+  ///
+  /// Use `preferredCameraDevice` to specify the camera to use when the `source` is [ImageSource.camera].
+  /// The `preferredCameraDevice` is ignored when `source` is [ImageSource.gallery]. It is also ignored if the chosen camera is not supported on the device.
+  /// Defaults to [CameraDevice.rear].
+  ///
+  /// The returned [AssetResult] contains both the file and the local identifier
+  /// (iOS only, null on Android).
+  ///
+  /// In Android, the MainActivity can be destroyed for various reasons. If that happens, the result will be lost
+  /// in this call. You can then call [getLostData] when your app relaunches to retrieve the lost data.
+  ///
+  /// If no videos were picked, the return value is null.
+  Future<AssetResult?> getVideoAsAsset({
+    required ImageSource source,
+    CameraDevice preferredCameraDevice = CameraDevice.rear,
+    Duration? maxDuration,
+  }) async {
+    final XFile? file = await getVideo(
+      source: source,
+      preferredCameraDevice: preferredCameraDevice,
+      maxDuration: maxDuration,
+    );
+    return file != null ? AssetResult(file: file) : null;
+  }
+
   /// Returns true if the implementation supports [source].
   ///
   /// Defaults to true for the original image sources, `gallery` and `camera`,

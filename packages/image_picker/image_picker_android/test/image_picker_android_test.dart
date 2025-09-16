@@ -966,7 +966,7 @@ class _FakeImagePickerApi implements ImagePickerApi {
   _LastPickType? lastCall;
 
   @override
-  Future<List<String?>> pickImages(
+  Future<List<AssetPickResult?>> pickImages(
     SourceSpecification source,
     ImageSelectionOptions options,
     GeneralOptions generalOptions,
@@ -977,11 +977,12 @@ class _FakeImagePickerApi implements ImagePickerApi {
     passedAllowMultiple = generalOptions.allowMultiple;
     passedPhotoPickerFlag = generalOptions.usePhotoPicker;
     limit = generalOptions.limit;
-    return returnValue as List<String?>? ?? <String>[];
+    final List<String?> paths = returnValue as List<String?>? ?? <String>[];
+    return paths.map((String? path) => path != null ? AssetPickResult(path: path, localIdentifier: null) : null).toList();
   }
 
   @override
-  Future<List<String?>> pickMedia(
+  Future<List<AssetPickResult?>> pickMedia(
     MediaSelectionOptions options,
     GeneralOptions generalOptions,
   ) async {
@@ -990,11 +991,12 @@ class _FakeImagePickerApi implements ImagePickerApi {
     passedPhotoPickerFlag = generalOptions.usePhotoPicker;
     passedAllowMultiple = generalOptions.allowMultiple;
     limit = generalOptions.limit;
-    return returnValue as List<String?>? ?? <String>[];
+    final List<String?> paths = returnValue as List<String?>? ?? <String>[];
+    return paths.map((String? path) => path != null ? AssetPickResult(path: path, localIdentifier: null) : null).toList();
   }
 
   @override
-  Future<List<String?>> pickVideos(
+  Future<List<AssetPickResult?>> pickVideos(
     SourceSpecification source,
     VideoSelectionOptions options,
     GeneralOptions generalOptions,
@@ -1004,7 +1006,8 @@ class _FakeImagePickerApi implements ImagePickerApi {
     passedVideoOptions = options;
     passedAllowMultiple = generalOptions.allowMultiple;
     passedPhotoPickerFlag = generalOptions.usePhotoPicker;
-    return returnValue as List<String?>? ?? <String>[];
+    final List<String?> paths = returnValue as List<String?>? ?? <String>[];
+    return paths.map((String? path) => path != null ? AssetPickResult(path: path, localIdentifier: null) : null).toList();
   }
 
   @override

@@ -50,22 +50,29 @@ class SourceSpecification {
   SourceCamera camera;
 }
 
+/// Result of picking an asset, containing the file path and optional local identifier.
+class AssetPickResult {
+  AssetPickResult(this.path, this.localIdentifier);
+  String path;
+  String? localIdentifier; // iOS only, null for Android
+}
+
 @HostApi(dartHostTestHandler: 'TestHostImagePickerApi')
 abstract class ImagePickerApi {
   @async
   @ObjCSelector('pickImageWithSource:maxSize:quality:fullMetadata:')
-  String? pickImage(SourceSpecification source, MaxSize maxSize,
+  AssetPickResult? pickImage(SourceSpecification source, MaxSize maxSize,
       int? imageQuality, bool requestFullMetadata);
   @async
   @ObjCSelector('pickMultiImageWithMaxSize:quality:fullMetadata:limit:')
-  List<String?> pickMultiImage(
+  List<AssetPickResult?> pickMultiImage(
       MaxSize maxSize, int? imageQuality, bool requestFullMetadata, int? limit);
   @async
   @ObjCSelector('pickVideoWithSource:maxDuration:')
-  String? pickVideo(SourceSpecification source, int? maxDurationSeconds);
+  AssetPickResult? pickVideo(SourceSpecification source, int? maxDurationSeconds);
 
-  /// Selects images and videos and returns their paths.
+  /// Selects images and videos and returns their paths and local identifiers.
   @async
   @ObjCSelector('pickMediaWithMediaSelectionOptions:')
-  List<String?> pickMedia(MediaSelectionOptions mediaSelectionOptions);
+  List<AssetPickResult?> pickMedia(MediaSelectionOptions mediaSelectionOptions);
 }

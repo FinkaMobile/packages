@@ -140,19 +140,19 @@ class ImagePickerIOS extends ImagePickerPlatform {
 
     // TODO(stuartmorgan): Remove the cast once Pigeon supports non-nullable
     //  generics, https://github.com/flutter/flutter/issues/97848
-    return (await _hostApi.pickMultiImage(
+    final List<AssetPickResult?> results = await _hostApi.pickMultiImage(
       MaxSize(width: maxWidth, height: maxHeight),
       imageQuality,
       options.imageOptions.requestFullMetadata,
       limit,
-    ))
-        .cast<String>();
+    );
+    return results.map((AssetPickResult? result) => result!.path).toList();
   }
 
   Future<String?> _pickImageAsPath({
     required ImageSource source,
     ImagePickerOptions options = const ImagePickerOptions(),
-  }) {
+  }) async {
     final int? imageQuality = options.imageQuality;
     if (imageQuality != null && (imageQuality < 0 || imageQuality > 100)) {
       throw ArgumentError.value(
@@ -169,7 +169,7 @@ class ImagePickerIOS extends ImagePickerPlatform {
       throw ArgumentError.value(maxHeight, 'maxHeight', 'cannot be negative');
     }
 
-    return _hostApi.pickImage(
+    final AssetPickResult? result = await _hostApi.pickImage(
       SourceSpecification(
         type: _convertSource(source),
         camera: _convertCamera(options.preferredCameraDevice),
@@ -178,6 +178,7 @@ class ImagePickerIOS extends ImagePickerPlatform {
       imageQuality,
       options.requestFullMetadata,
     );
+    return result?.path;
   }
 
   @override
@@ -187,9 +188,8 @@ class ImagePickerIOS extends ImagePickerPlatform {
     final MediaSelectionOptions mediaSelectionOptions =
         _mediaOptionsToMediaSelectionOptions(options);
 
-    return (await _hostApi.pickMedia(mediaSelectionOptions))
-        .map((String? path) => XFile(path!))
-        .toList();
+    final List<AssetPickResult?> results = await _hostApi.pickMedia(mediaSelectionOptions);
+    return results.map((AssetPickResult? result) => XFile(result!.path)).toList();
   }
 
   MaxSize _imageOptionsToMaxSizeWithValidation(ImageOptions imageOptions) {
@@ -260,12 +260,13 @@ class ImagePickerIOS extends ImagePickerPlatform {
     required ImageSource source,
     CameraDevice preferredCameraDevice = CameraDevice.rear,
     Duration? maxDuration,
-  }) {
-    return _hostApi.pickVideo(
+  }) async {
+    final AssetPickResult? result = await _hostApi.pickVideo(
         SourceSpecification(
             type: _convertSource(source),
             camera: _convertCamera(preferredCameraDevice)),
         maxDuration?.inSeconds);
+    return result?.path;
   }
 
   @override

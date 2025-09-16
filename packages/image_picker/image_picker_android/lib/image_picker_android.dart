@@ -35,14 +35,14 @@ class ImagePickerAndroid extends ImagePickerPlatform {
     int? imageQuality,
     CameraDevice preferredCameraDevice = CameraDevice.rear,
   }) async {
-    final String? path = await _getImagePath(
+    final AssetPickResult? assetResult = await _getImagePath(
       source: source,
       maxWidth: maxWidth,
       maxHeight: maxHeight,
       imageQuality: imageQuality,
       preferredCameraDevice: preferredCameraDevice,
     );
-    return path != null ? PickedFile(path) : null;
+    return assetResult != null ? PickedFile(assetResult.path) : null;
   }
 
   @override
@@ -51,19 +51,19 @@ class ImagePickerAndroid extends ImagePickerPlatform {
     double? maxHeight,
     int? imageQuality,
   }) async {
-    final List<dynamic> paths = await _getMultiImagePath(
+    final List<AssetPickResult?> assetResults = await _getMultiImagePath(
       maxWidth: maxWidth,
       maxHeight: maxHeight,
       imageQuality: imageQuality,
     );
-    if (paths.isEmpty) {
+    if (assetResults.isEmpty) {
       return null;
     }
 
-    return paths.map((dynamic path) => PickedFile(path as String)).toList();
+    return assetResults.map((AssetPickResult? assetResult) => PickedFile(assetResult!.path)).toList();
   }
 
-  Future<List<dynamic>> _getMultiImagePath({
+  Future<List<AssetPickResult?>> _getMultiImagePath({
     double? maxWidth,
     double? maxHeight,
     int? imageQuality,
@@ -100,7 +100,7 @@ class ImagePickerAndroid extends ImagePickerPlatform {
     );
   }
 
-  Future<String?> _getImagePath({
+  Future<AssetPickResult?> _getImagePath({
     required ImageSource source,
     double? maxWidth,
     double? maxHeight,
@@ -121,7 +121,7 @@ class ImagePickerAndroid extends ImagePickerPlatform {
       throw ArgumentError.value(maxHeight, 'maxHeight', 'cannot be negative');
     }
 
-    final List<String?> paths = await _hostApi.pickImages(
+    final List<AssetPickResult?> assetResults = await _hostApi.pickImages(
       _buildSourceSpec(source, preferredCameraDevice),
       ImageSelectionOptions(
           maxWidth: maxWidth,
@@ -132,7 +132,7 @@ class ImagePickerAndroid extends ImagePickerPlatform {
         usePhotoPicker: useAndroidPhotoPicker,
       ),
     );
-    return paths.isEmpty ? null : paths.first;
+    return assetResults.isEmpty ? null : assetResults.first;
   }
 
   @override
@@ -141,20 +141,20 @@ class ImagePickerAndroid extends ImagePickerPlatform {
     CameraDevice preferredCameraDevice = CameraDevice.rear,
     Duration? maxDuration,
   }) async {
-    final String? path = await _getVideoPath(
+    final AssetPickResult? assetResult = await _getVideoPath(
       source: source,
       maxDuration: maxDuration,
       preferredCameraDevice: preferredCameraDevice,
     );
-    return path != null ? PickedFile(path) : null;
+    return assetResult != null ? PickedFile(assetResult.path) : null;
   }
 
-  Future<String?> _getVideoPath({
+  Future<AssetPickResult?> _getVideoPath({
     required ImageSource source,
     CameraDevice preferredCameraDevice = CameraDevice.rear,
     Duration? maxDuration,
   }) async {
-    final List<String?> paths = await _hostApi.pickVideos(
+    final List<AssetPickResult?> assetResults = await _hostApi.pickVideos(
       _buildSourceSpec(source, preferredCameraDevice),
       VideoSelectionOptions(maxDurationSeconds: maxDuration?.inSeconds),
       GeneralOptions(
@@ -162,7 +162,7 @@ class ImagePickerAndroid extends ImagePickerPlatform {
         usePhotoPicker: useAndroidPhotoPicker,
       ),
     );
-    return paths.isEmpty ? null : paths.first;
+    return assetResults.isEmpty ? null : assetResults.first;
   }
 
   @override
@@ -173,14 +173,14 @@ class ImagePickerAndroid extends ImagePickerPlatform {
     int? imageQuality,
     CameraDevice preferredCameraDevice = CameraDevice.rear,
   }) async {
-    final String? path = await _getImagePath(
+    final AssetPickResult? assetResult = await _getImagePath(
       source: source,
       maxWidth: maxWidth,
       maxHeight: maxHeight,
       imageQuality: imageQuality,
       preferredCameraDevice: preferredCameraDevice,
     );
-    return path != null ? XFile(path) : null;
+    return assetResult != null ? XFile(assetResult.path) : null;
   }
 
   @override
@@ -188,7 +188,7 @@ class ImagePickerAndroid extends ImagePickerPlatform {
     required ImageSource source,
     ImagePickerOptions options = const ImagePickerOptions(),
   }) async {
-    final String? path = await _getImagePath(
+    final AssetPickResult? assetResult = await _getImagePath(
       source: source,
       maxHeight: options.maxHeight,
       maxWidth: options.maxWidth,
@@ -196,7 +196,7 @@ class ImagePickerAndroid extends ImagePickerPlatform {
       preferredCameraDevice: options.preferredCameraDevice,
       requestFullMetadata: options.requestFullMetadata,
     );
-    return path != null ? XFile(path) : null;
+    return assetResult != null ? XFile(assetResult.path) : null;
   }
 
   @override
@@ -205,34 +205,34 @@ class ImagePickerAndroid extends ImagePickerPlatform {
     double? maxHeight,
     int? imageQuality,
   }) async {
-    final List<dynamic> paths = await _getMultiImagePath(
+    final List<AssetPickResult?> assetResults = await _getMultiImagePath(
       maxWidth: maxWidth,
       maxHeight: maxHeight,
       imageQuality: imageQuality,
     );
-    if (paths.isEmpty) {
+    if (assetResults.isEmpty) {
       return null;
     }
 
-    return paths.map((dynamic path) => XFile(path as String)).toList();
+    return assetResults.map((AssetPickResult? assetResult) => XFile(assetResult!.path)).toList();
   }
 
   @override
   Future<List<XFile>> getMultiImageWithOptions({
     MultiImagePickerOptions options = const MultiImagePickerOptions(),
   }) async {
-    final List<dynamic> paths = await _getMultiImagePath(
+    final List<AssetPickResult?> assetResults = await _getMultiImagePath(
       maxWidth: options.imageOptions.maxWidth,
       maxHeight: options.imageOptions.maxHeight,
       imageQuality: options.imageOptions.imageQuality,
       limit: options.limit,
     );
 
-    if (paths.isEmpty) {
+    if (assetResults.isEmpty) {
       return <XFile>[];
     }
 
-    return paths.map((dynamic path) => XFile(path as String)).toList();
+    return assetResults.map((AssetPickResult? assetResult) => XFile(assetResult!.path)).toList();
   }
 
   @override
@@ -243,7 +243,7 @@ class ImagePickerAndroid extends ImagePickerPlatform {
       _mediaOptionsToMediaSelectionOptions(options),
       _mediaOptionsToGeneralOptions(options),
     ))
-        .map((String? path) => XFile(path!))
+        .map((AssetPickResult? assetResult) => XFile(assetResult!.path))
         .toList();
   }
 
@@ -253,12 +253,12 @@ class ImagePickerAndroid extends ImagePickerPlatform {
     CameraDevice preferredCameraDevice = CameraDevice.rear,
     Duration? maxDuration,
   }) async {
-    final String? path = await _getVideoPath(
+    final AssetPickResult? assetResult = await _getVideoPath(
       source: source,
       maxDuration: maxDuration,
       preferredCameraDevice: preferredCameraDevice,
     );
-    return path != null ? XFile(path) : null;
+    return assetResult != null ? XFile(assetResult.path) : null;
   }
 
   MediaSelectionOptions _mediaOptionsToMediaSelectionOptions(

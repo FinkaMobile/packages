@@ -8,11 +8,15 @@
 #import "FLTImagePickerImageUtil.h"
 #import "FLTImagePickerMetaDataUtil.h"
 #import "FLTImagePickerPhotoAssetUtil.h"
+#import "messages.g.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 /// Returns either the saved path, or an error. Both cannot be set.
 typedef void (^FLTGetSavedPath)(NSString *_Nullable savedPath, FlutterError *_Nullable error);
+
+/// Returns either the saved asset result, or an error. Both cannot be set.
+typedef void (^FLTGetSavedAssetResult)(FLTAssetPickResult *_Nullable assetResult, FlutterError *_Nullable error);
 
 /// @class FLTPHPickerSaveImageToPathOperation
 ///
@@ -31,6 +35,13 @@ typedef void (^FLTGetSavedPath)(NSString *_Nullable savedPath, FlutterError *_Nu
            desiredImageQuality:(NSNumber *)desiredImageQuality
                   fullMetadata:(BOOL)fullMetadata
                 savedPathBlock:(FLTGetSavedPath)savedPathBlock API_AVAILABLE(ios(14));
+
+- (instancetype)initWithResult:(PHPickerResult *)result
+                     maxHeight:(NSNumber *)maxHeight
+                      maxWidth:(NSNumber *)maxWidth
+           desiredImageQuality:(NSNumber *)desiredImageQuality
+                  fullMetadata:(BOOL)fullMetadata
+           savedAssetResultBlock:(FLTGetSavedAssetResult)savedAssetResultBlock API_AVAILABLE(ios(14));
 
 @end
 

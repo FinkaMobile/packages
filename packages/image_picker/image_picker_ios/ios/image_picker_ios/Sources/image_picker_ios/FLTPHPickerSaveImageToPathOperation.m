@@ -24,6 +24,7 @@ API_AVAILABLE(ios(14))
   BOOL executing;
   BOOL finished;
   FLTGetSavedPath getSavedPath;
+  FLTGetSavedAssetResult getSavedAssetResult;
 }
 
 - (instancetype)initWithResult:(PHPickerResult *)result
@@ -40,6 +41,31 @@ API_AVAILABLE(ios(14))
       self.desiredImageQuality = desiredImageQuality;
       self.requestFullMetadata = fullMetadata;
       getSavedPath = savedPathBlock;
+      executing = NO;
+      finished = NO;
+    } else {
+      return nil;
+    }
+    return self;
+  } else {
+    return nil;
+  }
+}
+
+- (instancetype)initWithResult:(PHPickerResult *)result
+                     maxHeight:(NSNumber *)maxHeight
+                      maxWidth:(NSNumber *)maxWidth
+           desiredImageQuality:(NSNumber *)desiredImageQuality
+                  fullMetadata:(BOOL)fullMetadata
+           savedAssetResultBlock:(FLTGetSavedAssetResult)savedAssetResultBlock API_AVAILABLE(ios(14)) {
+  if (self = [super init]) {
+    if (result) {
+      self.result = result;
+      self.maxHeight = maxHeight;
+      self.maxWidth = maxWidth;
+      self.desiredImageQuality = desiredImageQuality;
+      self.requestFullMetadata = fullMetadata;
+      getSavedAssetResult = savedAssetResultBlock;
       executing = NO;
       finished = NO;
     } else {
@@ -76,7 +102,14 @@ API_AVAILABLE(ios(14))
 }
 
 - (void)completeOperationWithPath:(NSString *)savedPath error:(FlutterError *)error {
-  getSavedPath(savedPath, error);
+  if (getSavedPath) {
+    getSavedPath(savedPath, error);
+  } else if (getSavedAssetResult) {
+    // Extract local identifier from the PHPickerResult
+    NSString *localIdentifier = self.result.assetIdentifier;
+    FLTAssetPickResult *assetResult = savedPath ? [FLTAssetPickResult makeWithPath:savedPath localIdentifier:localIdentifier] : nil;
+    getSavedAssetResult(assetResult, error);
+  }
   [self setExecuting:NO];
   [self setFinished:YES];
 }

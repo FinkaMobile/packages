@@ -65,6 +65,13 @@ class SourceSpecification {
   SourceCamera? camera;
 }
 
+/// Result of picking an asset, containing the file path and optional local identifier.
+class AssetPickResult {
+  AssetPickResult(this.path, this.localIdentifier);
+  String path;
+  String? localIdentifier; // iOS only, null for Android
+}
+
 /// An error that occurred during lost result retrieval.
 ///
 /// The data here maps to the `PlatformException` that will be created from it.
@@ -97,36 +104,36 @@ class CacheRetrievalResult {
 
 @HostApi(dartHostTestHandler: 'TestHostImagePickerApi')
 abstract class ImagePickerApi {
-  /// Selects images and returns their paths.
+  /// Selects images and returns their asset results.
   ///
   /// Elements must not be null, by convention. See
   /// https://github.com/flutter/flutter/issues/97848
   @TaskQueue(type: TaskQueueType.serialBackgroundThread)
   @async
-  List<String?> pickImages(
+  List<AssetPickResult?> pickImages(
     SourceSpecification source,
     ImageSelectionOptions options,
     GeneralOptions generalOptions,
   );
 
-  /// Selects video and returns their paths.
+  /// Selects video and returns their asset results.
   ///
   /// Elements must not be null, by convention. See
   /// https://github.com/flutter/flutter/issues/97848
   @TaskQueue(type: TaskQueueType.serialBackgroundThread)
   @async
-  List<String?> pickVideos(
+  List<AssetPickResult?> pickVideos(
     SourceSpecification source,
     VideoSelectionOptions options,
     GeneralOptions generalOptions,
   );
 
-  /// Selects images and videos and returns their paths.
+  /// Selects images and videos and returns their asset results.
   ///
   /// Elements must not be null, by convention. See
   /// https://github.com/flutter/flutter/issues/97848
   @async
-  List<String?> pickMedia(
+  List<AssetPickResult?> pickMedia(
     MediaSelectionOptions mediaSelectionOptions,
     GeneralOptions generalOptions,
   );

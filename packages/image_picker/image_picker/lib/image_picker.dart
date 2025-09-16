@@ -8,6 +8,7 @@ import 'package:image_picker_platform_interface/image_picker_platform_interface.
 
 export 'package:image_picker_platform_interface/image_picker_platform_interface.dart'
     show
+        AssetResult,
         CameraDevice,
         ImageSource,
         LostData,
@@ -292,6 +293,240 @@ class ImagePicker {
     Duration? maxDuration,
   }) {
     return platform.getVideo(
+      source: source,
+      preferredCameraDevice: preferredCameraDevice,
+      maxDuration: maxDuration,
+    );
+  }
+
+  // MARK: - AssetResult methods
+
+  /// Returns an [AssetResult] with the image that was picked, including local identifier.
+  ///
+  /// The returned [AssetResult] is intended to be used within a single app session.
+  /// Do not save the file path and use it across sessions.
+  ///
+  /// The `source` argument controls where the image comes from. This can
+  /// be either [ImageSource.camera] or [ImageSource.gallery].
+  ///
+  /// The returned [AssetResult] contains both the file and the local identifier.
+  /// The local identifier is only available on iOS (null on Android) and can be used
+  /// to retrieve the asset from the Photos library.
+  ///
+  /// Where iOS supports HEIC images, Android 8 and below doesn't. Android 9 and
+  /// above only support HEIC images if used in addition to a size modification,
+  /// of which the usage is explained below.
+  ///
+  /// If specified, the image will be at most `maxWidth` wide and
+  /// `maxHeight` tall. Otherwise the image will be returned at its
+  /// original width and height.
+  /// The `imageQuality` argument modifies the quality of the image, ranging from 0-100
+  /// where 100 is the original/max quality. If `imageQuality` is null, the image with
+  /// the original quality will be returned. Compression is only supported for certain
+  /// image types such as JPEG and on Android PNG and WebP, too. If compression is not
+  /// supported for the image that is picked, a warning message will be logged.
+  ///
+  /// Use `preferredCameraDevice` to specify the camera to use when the `source` is
+  /// [ImageSource.camera].
+  /// The `preferredCameraDevice` is ignored when `source` is [ImageSource.gallery]. It is also ignored if the chosen camera is not supported on the device.
+  /// Defaults to [CameraDevice.rear]. Note that Android has no documented parameter for an intent to specify if
+  /// the front or rear camera should be opened, this function is not guaranteed
+  /// to work on an Android device.
+  ///
+  /// Use `requestFullMetadata` (defaults to `true`) to control how much additional
+  /// information the plugin tries to get.
+  /// If `requestFullMetadata` is set to `true`, the plugin tries to get the full
+  /// image metadata which may require extra permission requests on some platforms,
+  /// such as `Photo Library Usage` permission on iOS.
+  ///
+  /// In Android, the MainActivity can be destroyed for various reasons. If that happens, the result will be lost
+  /// in this call. You can then call [retrieveLostData] when your app relaunches to retrieve the lost data.
+  ///
+  /// The method could throw [PlatformException] if the app does not have permission to access
+  /// the image library, plugin is already in use, temporary file could not be
+  /// created (iOS only), plugin activity could not be allocated (Android only)
+  /// or due to an unknown error.
+  ///
+  /// If no image was picked, the return value is null.
+  Future<AssetResult?> pickImageWithLocalId({
+    required ImageSource source,
+    double? maxWidth,
+    double? maxHeight,
+    int? imageQuality,
+    CameraDevice preferredCameraDevice = CameraDevice.rear,
+    bool requestFullMetadata = true,
+  }) {
+    return platform.getImageAsAsset(
+      source: source,
+      options: ImagePickerOptions(
+        maxWidth: maxWidth,
+        maxHeight: maxHeight,
+        imageQuality: imageQuality,
+        preferredCameraDevice: preferredCameraDevice,
+        requestFullMetadata: requestFullMetadata,
+      ),
+    );
+  }
+
+  /// Returns a [List<AssetResult>] with the images that were picked, including local identifiers.
+  ///
+  /// The images come from the gallery.
+  ///
+  /// The returned [List<AssetResult>] is intended to be used within a single app session.
+  /// Do not save the file paths and use them across sessions.
+  ///
+  /// The returned [AssetResult] objects contain both the files and local identifiers.
+  /// The local identifiers are only available on iOS (null on Android) and can be used
+  /// to retrieve the assets from the Photos library.
+  ///
+  /// Where iOS supports HEIC images, Android 8 and below doesn't. Android 9 and
+  /// above only support HEIC images if used in addition to a size modification,
+  /// of which the usage is explained below.
+  ///
+  /// This method is not supported in iOS versions lower than 14.
+  ///
+  /// If specified, the images will be at most `maxWidth` wide and
+  /// `maxHeight` tall. Otherwise the images will be returned at their
+  /// original width and height.
+  ///
+  /// The `imageQuality` argument modifies the quality of the images, ranging from 0-100
+  /// where 100 is the original/max quality. If `imageQuality` is null, the images with
+  /// the original quality will be returned. Compression is only supported for certain
+  /// image types such as JPEG and on Android PNG and WebP, too. If compression is not
+  /// supported for the image that is picked, a warning message will be logged.
+  ///
+  /// The `limit` parameter modifies the maximum number of images that can be selected.
+  /// This value may be ignored by platforms that cannot support it.
+  ///
+  /// Use `requestFullMetadata` (defaults to `true`) to control how much additional
+  /// information the plugin tries to get.
+  /// If `requestFullMetadata` is set to `true`, the plugin tries to get the full
+  /// image metadata which may require extra permission requests on some platforms,
+  /// such as `Photo Library Usage` permission on iOS.
+  ///
+  /// The method could throw [PlatformException] if the app does not have permission to access
+  /// the photos gallery, plugin is already in use, temporary file could not be
+  /// created (iOS only), plugin activity could not be allocated (Android only)
+  /// or due to an unknown error.
+  ///
+  /// If no images were picked, the return value is an empty list.
+  Future<List<AssetResult>> pickMultipleImagesWithLocalId({
+    double? maxWidth,
+    double? maxHeight,
+    int? imageQuality,
+    int? limit,
+    bool requestFullMetadata = true,
+  }) {
+    return platform.getMultiImageAsAssets(
+      options: MultiImagePickerOptions(
+        imageOptions: ImageOptions(
+          maxWidth: maxWidth,
+          maxHeight: maxHeight,
+          imageQuality: imageQuality,
+          requestFullMetadata: requestFullMetadata,
+        ),
+        limit: limit,
+      ),
+    );
+  }
+
+  /// Returns a [List<AssetResult>] with the images and/or videos that were picked, including local identifiers.
+  ///
+  /// The images and videos come from the gallery.
+  ///
+  /// The returned [List<AssetResult>] is intended to be used within a single app session.
+  /// Do not save the file paths and use them across sessions.
+  ///
+  /// The returned [AssetResult] objects contain both the files and local identifiers.
+  /// The local identifiers are only available on iOS (null on Android) and can be used
+  /// to retrieve the assets from the Photos library.
+  ///
+  /// Where iOS supports HEIC images, Android 8 and below doesn't. Android 9 and
+  /// above only support HEIC images if used in addition to a size modification,
+  /// of which the usage is explained below.
+  ///
+  /// This method is not supported in iOS versions lower than 14.
+  ///
+  /// If specified, the images will be at most `maxWidth` wide and
+  /// `maxHeight` tall. Otherwise the images will be returned at their
+  /// original width and height.
+  ///
+  /// The `imageQuality` argument modifies the quality of the images, ranging from 0-100
+  /// where 100 is the original/max quality. If `imageQuality` is null, the images with
+  /// the original quality will be returned. Compression is only supported for certain
+  /// image types such as JPEG and on Android PNG and WebP, too. If compression is not
+  /// supported for the image that is picked, a warning message will be logged.
+  ///
+  /// The `limit` parameter modifies the maximum number of media that can be selected.
+  /// This value may be ignored by platforms that cannot support it.
+  ///
+  /// Use `requestFullMetadata` (defaults to `true`) to control how much additional
+  /// information the plugin tries to get.
+  /// If `requestFullMetadata` is set to `true`, the plugin tries to get the full
+  /// image metadata which may require extra permission requests on some platforms,
+  /// such as `Photo Library Usage` permission on iOS.
+  ///
+  /// The method could throw [PlatformException] if the app does not have permission to access
+  /// the photos gallery, plugin is already in use, temporary file could not be
+  /// created (iOS only), plugin activity could not be allocated (Android only)
+  /// or due to an unknown error.
+  ///
+  /// If no images or videos were picked, the return value is an empty list.
+  Future<List<AssetResult>> pickMultipleMediaWithLocalId({
+    double? maxWidth,
+    double? maxHeight,
+    int? imageQuality,
+    int? limit,
+    bool requestFullMetadata = true,
+  }) {
+    return platform.getMediaAsAssets(
+      options: MediaOptions(
+        allowMultiple: true,
+        imageOptions: ImageOptions(
+          maxWidth: maxWidth,
+          maxHeight: maxHeight,
+          imageQuality: imageQuality,
+          requestFullMetadata: requestFullMetadata,
+        ),
+        limit: limit,
+      ),
+    );
+  }
+
+  /// Returns an [AssetResult] containing the video that was picked, including local identifier.
+  ///
+  /// The returned [AssetResult] is intended to be used within a single app session.
+  /// Do not save the file path and use it across sessions.
+  ///
+  /// The [source] argument controls where the video comes from. This can
+  /// be either [ImageSource.camera] or [ImageSource.gallery].
+  ///
+  /// The returned [AssetResult] contains both the file and the local identifier.
+  /// The local identifier is only available on iOS (null on Android) and can be used
+  /// to retrieve the asset from the Photos library.
+  ///
+  /// The [maxDuration] argument specifies the maximum duration of the captured video. If no [maxDuration] is specified,
+  /// the maximum duration will be infinite.
+  ///
+  /// Use `preferredCameraDevice` to specify the camera to use when the `source` is [ImageSource.camera].
+  /// The `preferredCameraDevice` is ignored when `source` is [ImageSource.gallery]. It is also ignored if the chosen camera is not supported on the device.
+  /// Defaults to [CameraDevice.rear].
+  ///
+  /// In Android, the MainActivity can be destroyed for various reasons. If that happens, the result will be lost
+  /// in this call. You can then call [retrieveLostData] when your app relaunches to retrieve the lost data.
+  ///
+  /// The method could throw [PlatformException] if the app does not have permission to access
+  /// the video library, plugin is already in use, temporary file could not be
+  /// created (iOS only), plugin activity could not be allocated (Android only)
+  /// or due to an unknown error.
+  ///
+  /// If no video was picked, the return value is null.
+  Future<AssetResult?> pickVideoWithLocalId({
+    required ImageSource source,
+    CameraDevice preferredCameraDevice = CameraDevice.rear,
+    Duration? maxDuration,
+  }) {
+    return platform.getVideoAsAsset(
       source: source,
       preferredCameraDevice: preferredCameraDevice,
       maxDuration: maxDuration,

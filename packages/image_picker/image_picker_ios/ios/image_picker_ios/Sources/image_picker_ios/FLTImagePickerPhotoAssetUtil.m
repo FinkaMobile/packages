@@ -5,6 +5,7 @@
 #import "FLTImagePickerPhotoAssetUtil.h"
 #import "FLTImagePickerImageUtil.h"
 #import "FLTImagePickerMetaDataUtil.h"
+#import "messages.g.h"
 
 #import <MobileCoreServices/MobileCoreServices.h>
 
@@ -153,6 +154,36 @@
     nil;
   }
   return tmpPath;
+}
+
+#pragma mark - Asset Result Methods
+
++ (FLTAssetPickResult *)saveImageAsAssetWithOriginalImageData:(NSData *)originalImageData
+                                                        image:(UIImage *)image
+                                                     maxWidth:(nullable NSNumber *)maxWidth
+                                                    maxHeight:(nullable NSNumber *)maxHeight
+                                                 imageQuality:(nullable NSNumber *)imageQuality
+                                              localIdentifier:(nullable NSString *)localIdentifier {
+  NSString *path = [self saveImageWithOriginalImageData:originalImageData
+                                                   image:image
+                                                maxWidth:maxWidth
+                                               maxHeight:maxHeight
+                                            imageQuality:imageQuality];
+  return [FLTAssetPickResult makeWithPath:path localIdentifier:localIdentifier];
+}
+
++ (FLTAssetPickResult *)saveImageAsAssetWithPickerInfo:(nullable NSDictionary *)info
+                                                 image:(UIImage *)image
+                                          imageQuality:(nullable NSNumber *)imageQuality
+                                       localIdentifier:(nullable NSString *)localIdentifier {
+  NSString *path = [self saveImageWithPickerInfo:info image:image imageQuality:imageQuality];
+  return [FLTAssetPickResult makeWithPath:path localIdentifier:localIdentifier];
+}
+
++ (FLTAssetPickResult *)saveVideoAsAssetFromURL:(NSURL *)videoURL
+                                localIdentifier:(nullable NSString *)localIdentifier {
+  NSURL *savedURL = [self saveVideoFromURL:videoURL];
+  return [FLTAssetPickResult makeWithPath:savedURL.path localIdentifier:localIdentifier];
 }
 
 @end

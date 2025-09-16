@@ -7,6 +7,7 @@
 #import <PhotosUI/PhotosUI.h>
 
 #import "FLTImagePickerImageUtil.h"
+#import "messages.g.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -31,6 +32,28 @@ NS_ASSUME_NONNULL_BEGIN
 + (NSString *)saveImageWithPickerInfo:(nullable NSDictionary *)info
                                 image:(UIImage *)image
                          imageQuality:(nullable NSNumber *)imageQuality;
+
+// MARK: - Asset Result Methods
+
+// Saves image with correct meta data and extention copied from the original asset.
+// Returns FLTAssetPickResult with path and local identifier.
++ (FLTAssetPickResult *)saveImageAsAssetWithOriginalImageData:(NSData *)originalImageData
+                                                        image:(UIImage *)image
+                                                     maxWidth:(nullable NSNumber *)maxWidth
+                                                    maxHeight:(nullable NSNumber *)maxHeight
+                                                 imageQuality:(nullable NSNumber *)imageQuality
+                                              localIdentifier:(nullable NSString *)localIdentifier;
+
+// Save image with correct meta data and extention copied from image picker result info.
+// Returns FLTAssetPickResult with path and local identifier.
++ (FLTAssetPickResult *)saveImageAsAssetWithPickerInfo:(nullable NSDictionary *)info
+                                                 image:(UIImage *)image
+                                          imageQuality:(nullable NSNumber *)imageQuality
+                                       localIdentifier:(nullable NSString *)localIdentifier;
+
+// Saves video to temporary URL. Returns FLTAssetPickResult with path and local identifier.
++ (FLTAssetPickResult *)saveVideoAsAssetFromURL:(NSURL *)videoURL
+                                localIdentifier:(nullable NSString *)localIdentifier;
 
 @end
 

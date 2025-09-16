@@ -25,6 +25,13 @@
   }
   return self;
 }
+
+- (instancetype)initWithAssetResult:(nonnull FlutterAssetResultAdapter)assetResult {
+  if (self = [super init]) {
+    _assetResult = [assetResult copy];
+  }
+  return self;
+}
 @end
 
 #pragma mark -
@@ -160,16 +167,16 @@ typedef NS_ENUM(NSInteger, ImagePickerClassType) { UIImagePickerClassType, PHPic
                     quality:(nullable NSNumber *)imageQuality
                fullMetadata:(BOOL)fullMetadata
                  completion:
-                     (nonnull void (^)(NSString *_Nullable, FlutterError *_Nullable))completion {
+                     (nonnull void (^)(FLTAssetPickResult *_Nullable, FlutterError *_Nullable))completion {
   [self cancelInProgressCall];
   FLTImagePickerMethodCallContext *context = [[FLTImagePickerMethodCallContext alloc]
-      initWithResult:^void(NSArray<NSString *> *paths, FlutterError *error) {
-        if (paths.count > 1) {
+      initWithAssetResult:^void(NSArray<FLTAssetPickResult *> *assetResults, FlutterError *error) {
+        if (assetResults.count > 1) {
           completion(nil, [FlutterError errorWithCode:@"invalid_result"
-                                              message:@"Incorrect number of return paths provided"
+                                              message:@"Incorrect number of return asset results provided"
                                               details:nil]);
         }
-        completion(paths.firstObject, error);
+        completion(assetResults.firstObject, error);
       }];
   context.maxSize = maxSize;
   context.imageQuality = imageQuality;
@@ -191,11 +198,11 @@ typedef NS_ENUM(NSInteger, ImagePickerClassType) { UIImagePickerClassType, PHPic
                           quality:(nullable NSNumber *)imageQuality
                      fullMetadata:(BOOL)fullMetadata
                             limit:(nullable NSNumber *)limit
-                       completion:(nonnull void (^)(NSArray<NSString *> *_Nullable,
+                       completion:(nonnull void (^)(NSArray<FLTAssetPickResult *> *_Nullable,
                                                     FlutterError *_Nullable))completion {
   [self cancelInProgressCall];
   FLTImagePickerMethodCallContext *context =
-      [[FLTImagePickerMethodCallContext alloc] initWithResult:completion];
+      [[FLTImagePickerMethodCallContext alloc] initWithAssetResult:completion];
   context.maxSize = maxSize;
   context.imageQuality = imageQuality;
   context.requestFullMetadata = fullMetadata;
@@ -212,11 +219,11 @@ typedef NS_ENUM(NSInteger, ImagePickerClassType) { UIImagePickerClassType, PHPic
 }
 
 - (void)pickMediaWithMediaSelectionOptions:(nonnull FLTMediaSelectionOptions *)mediaSelectionOptions
-                                completion:(nonnull void (^)(NSArray<NSString *> *_Nullable,
+                                completion:(nonnull void (^)(NSArray<FLTAssetPickResult *> *_Nullable,
                                                              FlutterError *_Nullable))completion {
   [self cancelInProgressCall];
   FLTImagePickerMethodCallContext *context =
-      [[FLTImagePickerMethodCallContext alloc] initWithResult:completion];
+      [[FLTImagePickerMethodCallContext alloc] initWithAssetResult:completion];
   context.maxSize = [mediaSelectionOptions maxSize];
   context.imageQuality = [mediaSelectionOptions imageQuality];
   context.requestFullMetadata = [mediaSelectionOptions requestFullMetadata];
@@ -241,16 +248,16 @@ typedef NS_ENUM(NSInteger, ImagePickerClassType) { UIImagePickerClassType, PHPic
 - (void)pickVideoWithSource:(nonnull FLTSourceSpecification *)source
                 maxDuration:(nullable NSNumber *)maxDurationSeconds
                  completion:
-                     (nonnull void (^)(NSString *_Nullable, FlutterError *_Nullable))completion {
+                     (nonnull void (^)(FLTAssetPickResult *_Nullable, FlutterError *_Nullable))completion {
   [self cancelInProgressCall];
   FLTImagePickerMethodCallContext *context = [[FLTImagePickerMethodCallContext alloc]
-      initWithResult:^void(NSArray<NSString *> *paths, FlutterError *error) {
-        if (paths.count > 1) {
+      initWithAssetResult:^void(NSArray<FLTAssetPickResult *> *assetResults, FlutterError *error) {
+        if (assetResults.count > 1) {
           completion(nil, [FlutterError errorWithCode:@"invalid_result"
-                                              message:@"Incorrect number of return paths provided"
+                                              message:@"Incorrect number of return asset results provided"
                                               details:nil]);
         }
-        completion(paths.firstObject, error);
+        completion(assetResults.firstObject, error);
       }];
   context.maxImageCount = 1;
 
@@ -510,7 +517,7 @@ typedef NS_ENUM(NSInteger, ImagePickerClassType) { UIImagePickerClassType, PHPic
   NSNumber *imageQuality = currentCallContext.imageQuality;
   NSNumber *desiredImageQuality = [self getDesiredImageQuality:imageQuality];
   BOOL requestFullMetadata = currentCallContext.requestFullMetadata;
-  NSMutableArray *pathList = [[NSMutableArray alloc] initWithCapacity:results.count];
+  NSMutableArray<FLTAssetPickResult *> *assetList = [[NSMutableArray alloc] initWithCapacity:results.count];
   __block FlutterError *saveError = nil;
   __weak typeof(self) weakSelf = self;
   // This operation will be executed on the main queue after
@@ -519,7 +526,7 @@ typedef NS_ENUM(NSInteger, ImagePickerClassType) { UIImagePickerClassType, PHPic
     if (saveError != nil) {
       [weakSelf sendCallResultWithError:saveError];
     } else {
-      [weakSelf sendCallResultWithSavedPathList:pathList];
+      [weakSelf sendCallResultWithSavedAssetList:assetList];
     }
     // Retain queue until here.
     saveQueue = nil;
@@ -527,7 +534,7 @@ typedef NS_ENUM(NSInteger, ImagePickerClassType) { UIImagePickerClassType, PHPic
 
   [results enumerateObjectsUsingBlock:^(PHPickerResult *result, NSUInteger index, BOOL *stop) {
     // NSNull means it hasn't saved yet.
-    [pathList addObject:[NSNull null]];
+    [assetList addObject:(FLTAssetPickResult *)[NSNull null]];
     FLTPHPickerSaveImageToPathOperation *saveOperation =
         [[FLTPHPickerSaveImageToPathOperation alloc]
                  initWithResult:result
@@ -535,9 +542,9 @@ typedef NS_ENUM(NSInteger, ImagePickerClassType) { UIImagePickerClassType, PHPic
                        maxWidth:maxWidth
             desiredImageQuality:desiredImageQuality
                    fullMetadata:requestFullMetadata
-                 savedPathBlock:^(NSString *savedPath, FlutterError *error) {
-                   if (savedPath != nil) {
-                     pathList[index] = savedPath;
+           savedAssetResultBlock:^(FLTAssetPickResult *assetResult, FlutterError *error) {
+                   if (assetResult != nil) {
+                     assetList[index] = assetResult;
                    } else {
                      saveError = error;
                    }
@@ -577,7 +584,9 @@ typedef NS_ENUM(NSInteger, ImagePickerClassType) { UIImagePickerClassType, PHPic
 
       videoURL = destination;
     }
-    [self sendCallResultWithSavedPathList:@[ videoURL.path ]];
+    // For video from camera, there's no asset so local identifier is nil
+    FLTAssetPickResult *assetResult = [FLTAssetPickResult makeWithPath:videoURL.path localIdentifier:nil];
+    [self sendCallResultWithSavedAssetList:@[ assetResult ]];
   } else {
     UIImage *image = info[UIImagePickerControllerEditedImage];
     if (image == nil) {
@@ -603,16 +612,18 @@ typedef NS_ENUM(NSInteger, ImagePickerClassType) { UIImagePickerClassType, PHPic
 
     if (!originalAsset) {
       // Image picked without an original asset (e.g. User took a photo directly)
-      [self saveImageWithPickerInfo:info image:image imageQuality:desiredImageQuality];
+      [self saveImageAsAssetWithPickerInfo:info image:image imageQuality:desiredImageQuality localIdentifier:nil];
     } else {
+      NSString *localIdentifier = originalAsset.localIdentifier;
       void (^resultHandler)(NSData *imageData, NSString *dataUTI, NSDictionary *info) = ^(
           NSData *_Nullable imageData, NSString *_Nullable dataUTI, NSDictionary *_Nullable info) {
         // maxWidth and maxHeight are used only for GIF images.
-        [self saveImageWithOriginalImageData:imageData
-                                       image:image
-                                    maxWidth:maxWidth
-                                   maxHeight:maxHeight
-                                imageQuality:desiredImageQuality];
+        [self saveImageAsAssetWithOriginalImageData:imageData
+                                              image:image
+                                           maxWidth:maxWidth
+                                          maxHeight:maxHeight
+                                       imageQuality:desiredImageQuality
+                                    localIdentifier:localIdentifier];
       };
       if (@available(iOS 13.0, *)) {
         [[PHImageManager defaultManager]
@@ -671,17 +682,77 @@ typedef NS_ENUM(NSInteger, ImagePickerClassType) { UIImagePickerClassType, PHPic
   [self sendCallResultWithSavedPathList:@[ savedPath ]];
 }
 
+- (void)saveImageAsAssetWithOriginalImageData:(NSData *)originalImageData
+                                        image:(UIImage *)image
+                                     maxWidth:(NSNumber *)maxWidth
+                                    maxHeight:(NSNumber *)maxHeight
+                                 imageQuality:(NSNumber *)imageQuality
+                              localIdentifier:(NSString *)localIdentifier {
+  FLTAssetPickResult *assetResult = [FLTImagePickerPhotoAssetUtil saveImageAsAssetWithOriginalImageData:originalImageData
+                                                                                                   image:image
+                                                                                                maxWidth:maxWidth
+                                                                                               maxHeight:maxHeight
+                                                                                            imageQuality:imageQuality
+                                                                                         localIdentifier:localIdentifier];
+  [self sendCallResultWithSavedAssetList:@[ assetResult ]];
+}
+
+- (void)saveImageAsAssetWithPickerInfo:(NSDictionary *)info
+                                 image:(UIImage *)image
+                          imageQuality:(NSNumber *)imageQuality
+                       localIdentifier:(NSString *)localIdentifier {
+  FLTAssetPickResult *assetResult = [FLTImagePickerPhotoAssetUtil saveImageAsAssetWithPickerInfo:info
+                                                                                            image:image
+                                                                                     imageQuality:imageQuality
+                                                                                  localIdentifier:localIdentifier];
+  [self sendCallResultWithSavedAssetList:@[ assetResult ]];
+}
+
 - (void)sendCallResultWithSavedPathList:(nullable NSArray *)pathList {
   if (!self.callContext) {
     return;
   }
 
+  // Check if we have an asset result callback, and if so, convert paths to asset results
+  if (self.callContext.assetResult) {
+    if (pathList) {
+      NSMutableArray<FLTAssetPickResult *> *assetList = [[NSMutableArray alloc] initWithCapacity:pathList.count];
+      for (NSString *path in pathList) {
+        if ([path isKindOfClass:[NSString class]]) {
+          // No local identifier available when coming from path-based operations
+          FLTAssetPickResult *assetResult = [FLTAssetPickResult makeWithPath:path localIdentifier:nil];
+          [assetList addObject:assetResult];
+        }
+      }
+      [self sendCallResultWithSavedAssetList:assetList];
+    } else {
+      [self sendCallResultWithSavedAssetList:nil];
+    }
+    return;
+  }
+
+  // Original path-based logic
   if ([pathList containsObject:[NSNull null]]) {
     self.callContext.result(nil, [FlutterError errorWithCode:@"create_error"
                                                      message:@"pathList's items should not be null"
                                                      details:nil]);
   } else {
     self.callContext.result(pathList ?: [NSArray array], nil);
+  }
+  self.callContext = nil;
+}
+
+- (void)sendCallResultWithSavedAssetList:(nullable NSArray<FLTAssetPickResult *> *)assetList {
+  if (!self.callContext) {
+    return;
+  }
+
+  if ([assetList containsObject:[NSNull null]]) {
+    self.callContext.assetResult(nil, [FlutterError errorWithCode:@"create_error"
+                                                          message:@"assetList's items should not be null"
+                                                          details:nil]);
+  } else {
+    self.callContext.assetResult(assetList ?: [NSArray array], nil);
   }
   self.callContext = nil;
 }
