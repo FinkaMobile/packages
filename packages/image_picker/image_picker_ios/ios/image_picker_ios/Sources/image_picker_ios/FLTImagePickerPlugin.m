@@ -584,8 +584,16 @@ typedef NS_ENUM(NSInteger, ImagePickerClassType) { UIImagePickerClassType, PHPic
 
       videoURL = destination;
     }
-    // For video from camera, there's no asset so local identifier is nil
-    FLTAssetPickResult *assetResult = [FLTAssetPickResult makeWithPath:videoURL.path localIdentifier:nil];
+
+    // Extract PHAsset to get local identifier (same logic as images)
+    PHAsset *originalAsset;
+    if (_callContext.requestFullMetadata) {
+      // Full metadata are available only in PHAsset, which requires gallery permission.
+      originalAsset = [FLTImagePickerPhotoAssetUtil getAssetFromImagePickerInfo:info];
+    }
+
+    NSString *localIdentifier = originalAsset ? originalAsset.localIdentifier : nil;
+    FLTAssetPickResult *assetResult = [FLTAssetPickResult makeWithPath:videoURL.path localIdentifier:localIdentifier];
     [self sendCallResultWithSavedAssetList:@[ assetResult ]];
   } else {
     UIImage *image = info[UIImagePickerControllerEditedImage];
