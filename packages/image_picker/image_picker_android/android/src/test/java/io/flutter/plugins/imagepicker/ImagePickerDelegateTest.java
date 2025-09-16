@@ -69,7 +69,7 @@ public class ImagePickerDelegateTest {
 
   @Mock Activity mockActivity;
   @Mock ImageResizer mockImageResizer;
-  @Mock Messages.Result<List<String>> mockResult;
+  @Mock Messages.Result<List<Messages.AssetPickResult>> mockResult;
   @Mock ImagePickerDelegate.PermissionManager mockPermissionManager;
   @Mock FileUtils mockFileUtils;
   @Mock Intent mockIntent;
@@ -90,8 +90,8 @@ public class ImagePickerDelegateTest {
     }
 
     @Override
-    public void getFullImagePath(Uri imageUri, ImagePickerDelegate.OnPathReadyListener listener) {
-      listener.onPathReady("pathFromUri");
+    public void getFullImagePath(Uri imageUri, ImagePickerDelegate.OnScanCompletedListener listener) {
+      listener.onScanCompleted("pathFromUri", imageUri);
     }
   }
 
@@ -389,9 +389,9 @@ public class ImagePickerDelegateTest {
         ImagePickerDelegate.REQUEST_CODE_CHOOSE_IMAGE_FROM_GALLERY, Activity.RESULT_CANCELED, null);
 
     @SuppressWarnings("unchecked")
-    ArgumentCaptor<List<String>> pathListCapture = ArgumentCaptor.forClass(List.class);
-    verify(mockResult).success(pathListCapture.capture());
-    assertEquals(0, pathListCapture.getValue().size());
+    ArgumentCaptor<List<Messages.AssetPickResult>> listCaptor = ArgumentCaptor.forClass(List.class);
+    verify(mockResult).success(listCaptor.capture());
+    assertEquals(0, listCaptor.getValue().size());
     verifyNoMoreInteractions(mockResult);
   }
 
@@ -429,9 +429,9 @@ public class ImagePickerDelegateTest {
         ImagePickerDelegate.REQUEST_CODE_CHOOSE_IMAGE_FROM_GALLERY, Activity.RESULT_OK, mockIntent);
 
     @SuppressWarnings("unchecked")
-    ArgumentCaptor<List<String>> pathListCapture = ArgumentCaptor.forClass(List.class);
-    verify(mockResult).success(pathListCapture.capture());
-    assertEquals("originalPath", pathListCapture.getValue().get(0));
+    ArgumentCaptor<List<Messages.AssetPickResult>> listCaptor = ArgumentCaptor.forClass(List.class);
+    verify(mockResult).success(listCaptor.capture());
+    assertEquals("originalPath", listCaptor.getValue().get(0).getPath());
     verifyNoMoreInteractions(mockResult);
   }
 
@@ -456,9 +456,9 @@ public class ImagePickerDelegateTest {
         ImagePickerDelegate.REQUEST_CODE_CHOOSE_IMAGE_FROM_GALLERY, Activity.RESULT_OK, mockIntent);
 
     @SuppressWarnings("unchecked")
-    ArgumentCaptor<List<String>> pathListCapture = ArgumentCaptor.forClass(List.class);
-    verify(mockResult).success(pathListCapture.capture());
-    assertEquals("originalPath", pathListCapture.getValue().get(0));
+    ArgumentCaptor<List<Messages.AssetPickResult>> listCaptor = ArgumentCaptor.forClass(List.class);
+    verify(mockResult).success(listCaptor.capture());
+    assertEquals("originalPath", listCaptor.getValue().get(0).getPath());
     verifyNoMoreInteractions(mockResult);
   }
 
@@ -483,9 +483,9 @@ public class ImagePickerDelegateTest {
         ImagePickerDelegate.REQUEST_CODE_CHOOSE_VIDEO_FROM_GALLERY, Activity.RESULT_OK, mockIntent);
 
     @SuppressWarnings("unchecked")
-    ArgumentCaptor<List<String>> pathListCapture = ArgumentCaptor.forClass(List.class);
-    verify(mockResult).success(pathListCapture.capture());
-    assertEquals("pathFromUri", pathListCapture.getValue().get(0));
+    ArgumentCaptor<List<Messages.AssetPickResult>> listCaptor = ArgumentCaptor.forClass(List.class);
+    verify(mockResult).success(listCaptor.capture());
+    assertEquals("pathFromUri", listCaptor.getValue().get(0).getPath());
     verifyNoMoreInteractions(mockResult);
   }
 
@@ -580,9 +580,9 @@ public class ImagePickerDelegateTest {
         ImagePickerDelegate.REQUEST_CODE_CHOOSE_IMAGE_FROM_GALLERY, Activity.RESULT_OK, mockIntent);
 
     @SuppressWarnings("unchecked")
-    ArgumentCaptor<List<String>> pathListCapture = ArgumentCaptor.forClass(List.class);
-    verify(mockResult).success(pathListCapture.capture());
-    assertEquals("scaledPath", pathListCapture.getValue().get(0));
+    ArgumentCaptor<List<Messages.AssetPickResult>> listCaptor = ArgumentCaptor.forClass(List.class);
+    verify(mockResult).success(listCaptor.capture());
+    assertEquals("scaledPath", listCaptor.getValue().get(0).getPath());
     verifyNoMoreInteractions(mockResult);
   }
 
@@ -603,9 +603,9 @@ public class ImagePickerDelegateTest {
         ImagePickerDelegate.REQUEST_CODE_CHOOSE_VIDEO_FROM_GALLERY, Activity.RESULT_OK, mockIntent);
 
     @SuppressWarnings("unchecked")
-    ArgumentCaptor<List<String>> pathListCapture = ArgumentCaptor.forClass(List.class);
-    verify(mockResult).success(pathListCapture.capture());
-    assertEquals("pathFromUri", pathListCapture.getValue().get(0));
+    ArgumentCaptor<List<Messages.AssetPickResult>> listCaptor = ArgumentCaptor.forClass(List.class);
+    verify(mockResult).success(listCaptor.capture());
+    assertEquals("pathFromUri", listCaptor.getValue().get(0).getPath());
     verifyNoMoreInteractions(mockResult);
   }
 
@@ -625,9 +625,9 @@ public class ImagePickerDelegateTest {
         ImagePickerDelegate.REQUEST_CODE_TAKE_IMAGE_WITH_CAMERA, Activity.RESULT_CANCELED, null);
 
     @SuppressWarnings("unchecked")
-    ArgumentCaptor<List<String>> pathListCapture = ArgumentCaptor.forClass(List.class);
-    verify(mockResult).success(pathListCapture.capture());
-    assertEquals(0, pathListCapture.getValue().size());
+    ArgumentCaptor<List<Messages.AssetPickResult>> listCaptor = ArgumentCaptor.forClass(List.class);
+    verify(mockResult).success(listCaptor.capture());
+    assertEquals(0, listCaptor.getValue().size());
     verifyNoMoreInteractions(mockResult);
   }
 
@@ -648,9 +648,9 @@ public class ImagePickerDelegateTest {
         ImagePickerDelegate.REQUEST_CODE_TAKE_IMAGE_WITH_CAMERA, Activity.RESULT_OK, mockIntent);
 
     @SuppressWarnings("unchecked")
-    ArgumentCaptor<List<String>> pathListCapture = ArgumentCaptor.forClass(List.class);
-    verify(mockResult).success(pathListCapture.capture());
-    assertEquals("originalPath", pathListCapture.getValue().get(0));
+    ArgumentCaptor<List<Messages.AssetPickResult>> listCaptor = ArgumentCaptor.forClass(List.class);
+    verify(mockResult).success(listCaptor.capture());
+    assertEquals("originalPath", listCaptor.getValue().get(0).getPath());
     verifyNoMoreInteractions(mockResult);
   }
 
@@ -672,9 +672,9 @@ public class ImagePickerDelegateTest {
         ImagePickerDelegate.REQUEST_CODE_TAKE_IMAGE_WITH_CAMERA, Activity.RESULT_OK, mockIntent);
 
     @SuppressWarnings("unchecked")
-    ArgumentCaptor<List<String>> pathListCapture = ArgumentCaptor.forClass(List.class);
-    verify(mockResult).success(pathListCapture.capture());
-    assertEquals("scaledPath", pathListCapture.getValue().get(0));
+    ArgumentCaptor<List<Messages.AssetPickResult>> listCaptor = ArgumentCaptor.forClass(List.class);
+    verify(mockResult).success(listCaptor.capture());
+    assertEquals("scaledPath", listCaptor.getValue().get(0).getPath());
     verifyNoMoreInteractions(mockResult);
   }
 
@@ -696,9 +696,9 @@ public class ImagePickerDelegateTest {
         ImagePickerDelegate.REQUEST_CODE_TAKE_VIDEO_WITH_CAMERA, Activity.RESULT_OK, mockIntent);
 
     @SuppressWarnings("unchecked")
-    ArgumentCaptor<List<String>> pathListCapture = ArgumentCaptor.forClass(List.class);
-    verify(mockResult).success(pathListCapture.capture());
-    assertEquals("pathFromUri", pathListCapture.getValue().get(0));
+    ArgumentCaptor<List<Messages.AssetPickResult>> listCaptor = ArgumentCaptor.forClass(List.class);
+    verify(mockResult).success(listCaptor.capture());
+    assertEquals("pathFromUri", listCaptor.getValue().get(0).getPath());
     verifyNoMoreInteractions(mockResult);
   }
 
@@ -721,9 +721,9 @@ public class ImagePickerDelegateTest {
         ImagePickerDelegate.REQUEST_CODE_TAKE_VIDEO_WITH_CAMERA, Activity.RESULT_OK, mockIntent);
 
     @SuppressWarnings("unchecked")
-    ArgumentCaptor<List<String>> pathListCapture = ArgumentCaptor.forClass(List.class);
-    verify(mockResult).success(pathListCapture.capture());
-    assertEquals("pathFromUri", pathListCapture.getValue().get(0));
+    ArgumentCaptor<List<Messages.AssetPickResult>> listCaptor = ArgumentCaptor.forClass(List.class);
+    verify(mockResult).success(listCaptor.capture());
+    assertEquals("pathFromUri", listCaptor.getValue().get(0).getPath());
     verifyNoMoreInteractions(mockResult);
   }
 

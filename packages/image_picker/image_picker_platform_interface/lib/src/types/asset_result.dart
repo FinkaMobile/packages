@@ -20,18 +20,18 @@ class AssetResult {
   /// The picked file.
   final XFile file;
 
-  /// The local identifier of the asset on iOS.
+  /// The ID of the asset.
+  ///  * Android: `_id` column in `MediaStore` database, as a string.
+  ///  * iOS/macOS: `localIdentifier` from Photos framework.
   ///
-  /// This is the persistent identifier that can be used to retrieve the asset
-  /// from the Photos library on iOS. On Android, this is always null.
+  /// This identifier is intended for same-device lookups within the current
+  /// session; availability depends on the underlying provider. Some sources
+  /// (e.g., cloud-backed URIs) may return null.
   final String? localIdentifier;
 
   @override
   bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other is AssetResult &&
-            file.path == other.file.path &&
-            localIdentifier == other.localIdentifier);
+    return identical(this, other) || (other is AssetResult && file.path == other.file.path && localIdentifier == other.localIdentifier);
   }
 
   @override

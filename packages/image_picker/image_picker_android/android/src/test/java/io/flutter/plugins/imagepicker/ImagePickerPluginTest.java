@@ -88,7 +88,7 @@ public class ImagePickerPluginTest {
   @Mock Activity mockActivity;
   @Mock Application mockApplication;
   @Mock ImagePickerDelegate mockImagePickerDelegate;
-  @Mock Messages.Result<List<String>> mockResult;
+  @Mock Messages.Result<List<Messages.AssetPickResult>> mockResult;
 
   ImagePickerPlugin plugin;
 
